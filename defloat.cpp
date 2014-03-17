@@ -1,3 +1,4 @@
+#define __STDC_CONSTANT_MACROS
 #define __STDC_FORMAT_MACROS
 #include <inttypes.h>
 #include <limits.h>
@@ -8,12 +9,12 @@
 // 'width' is the minimum (zero-padded) width in printed characters
 template<typename T>
 static void print_bin(T num, unsigned width = CHAR_BIT*sizeof(T)) {
-    unsigned const     N_BITS = CHAR_BIT*sizeof(T);
-    unsigned long long bit_mask;
+    unsigned const N_BITS = CHAR_BIT*sizeof(T);
+    uintmax_t      bit_mask;
 
     // Skip high zeroes until 'width' is reached
-    for (bit_mask = 1LL << (N_BITS - 1);
-         bit_mask != (1LL << (width - 1)) && !(num & bit_mask);
+    for (bit_mask = UINTMAX_C(1) << (N_BITS - 1);
+         bit_mask != (UINTMAX_C(1) << (width - 1)) && !(num & bit_mask);
          bit_mask >>= 1);
 
     for (; bit_mask; bit_mask >>= 1)
@@ -111,12 +112,12 @@ void decode_float(float arg) {
 void decode_double(double arg) {
     uint64_t bits = *(uint64_t*)&arg; // Not strict-aliasing safe
 
-    unsigned long long const FRAC_MASK = 0xFFFFFFFFFFFFFLL;
-    double             const FRAC_DIV  = FRAC_MASK + 1;
+    uintmax_t const FRAC_MASK = UINTMAX_C(0xFFFFFFFFFFFFF);
+    double    const FRAC_DIV  = FRAC_MASK + 1;
 
     unsigned  sign     =  bits >> 63;
     unsigned  exponent = (bits >> 52) & 0x7FF;
-    long long fraction =  bits & FRAC_MASK;
+    uintmax_t fraction =  bits & FRAC_MASK;
 
     enum { INF_MODE, NAN_MODE, SUBNORMAL_MODE, NORMAL_MODE } mode;
 
